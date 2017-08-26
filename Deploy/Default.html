@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html ng-app="MultiConsole"  style="background-color:#215b7d;">
+<head>
+    <title>Multi Console View - SPA</title>
+    
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified CSS for botstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Latest compiled JavaScript for bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- AngularJS Material Dependencies -->
+    <!-- Compiled AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.2.25/angular-route.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-aria.min.js"></script>
+    <!-- Compiled AngularJS -->
+
+    <!-- AngularJS Material CSS now available via Google CDN; version 1.1.4 used here -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.css">
+
+    <!-- AngularJS Material Javascript now available via Google CDN; version 1.1.4 used here -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
+
+    <!--KnockOut JS reuqired for KuduJS -->
+    <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js" type="text/javascript"></script>
+
+    <!--Stylesheet for console-->
+    <link rel="stylesheet" href="Content/FileBrowser.css">
+
+    <style>
+        /*To make sure the text within button appears as typed and not all capitalized*/
+       .md-button {
+            text-transform: none;
+        }
+       /*To make sure the text within button appears as typed and not all capitalized*/
+
+       /*STYLES form ACCORDION*/
+       .md-accordion .expandCollapse { width:30px; height:30px; position:relative; font-size:20px; font-weight:bold; cursor:pointer; color:#fff; display:block; margin-top: -2px; margin-left: -2px; overflow:hidden; } 
+       .md-accordion .expandCollapse:active { border:0px; }
+       .md-accordion .expandCollapse:before, .md-accordion .expandCollapse:after {  width:30px; height:30px; display:block; position:absolute; top:0; left:0; line-height:32px; text-align:center; -webkit-transition: .3s all ease-out; transition: .3s all ease-out; }
+       .md-accordion .expandCollapse:before { opacity:1; -webkit-transform: rotate(0deg); transform: rotate(0deg); content: "|"; margin-top:-3px; }
+       .md-accordion .expandCollapse:after { opacity:1; -webkit-transform: rotate(-90deg); transform: rotate(-90deg); content: "|"; margin-left:-3px; }
+       .md-accordion .active:before { opacity:1; -webkit-transform: rotate(90deg); transform: rotate(90deg); margin-left:3px; margin-top:0px; }
+       .md-accordion .dataContent { background: #F2F2F2; height:0px; overflow:hidden; -webkit-transition: .3s all ease-out; transition: .3s all ease-out; }
+       .md-accordion .activeContent { height:inherit; padding:0; display:block; }
+       .md-accordion md-toolbar{ cursor:pointer; border-bottom:1px solid rgb(63,107,181) }
+       /*STYLES form ACCORDION*/
+
+    </style>
+
+</head>
+<body style="background-color:inherit;padding-left:15px;padding-right:15px" ng-controller="consoleCtrl" role="document">
+    <form name="MainForm">
+
+        <md-content>
+            <div class="md-accordion">
+                <md-toolbar ng-init="data.expanded = true" ng-click="data.expanded = !data.expanded">                
+                    <div class="md-toolbar-tools"  style="background-color:#0058ad; border-color:#0058ad">                        
+                        <div><span class="glyphicon glyphicon-cog"></span> Settings</div>                        
+                        <div flex=""> <!--Place holder here so that the next div to expand collapse appears on the right ---> </div>
+                        <div ng-class="{expandCollapse:true, active:data.expanded}"></div>
+                    </div>
+                </md-toolbar>
+                <div ng-class="{dataContent:true, activeContent:data.expanded}">
+                    <div style="padding:10px">
+                        <!--CONTENT OF ACCORDION-->
+                        <div layout-gt-sm="row" style="background-color:#f6f6f6">
+                            <a href="#" data-toggle="modal" data-target="#publishUserNamePasswordHelpModal">
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                            </a>
+                            <md-input-container flex>
+                                <label>UserName</label>
+                                <input id="publishProfileUserName" ng-model="publishProfileUserName" type="text" />
+                            </md-input-container>
+                            <a href="#" data-toggle="modal" data-target="#publishUserNamePasswordHelpModal">
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                            </a>
+                            <md-input-container flex>
+                                <div class="input-group" >
+                                    <label>Password</label>
+                                    <input id="publishProfilePassword" ng-model="publishProfilePassword" type="password" />
+                                    <span style="background-color:inherit;border:none" class="input-group-addon">
+                                        <i style="padding-bottom:20px;cursor:default;" class="glyphicon glyphicon-eye-open" 
+                                           onmousedown="$('#publishProfilePassword').prop('type', 'text'); this.className = 'glyphicon glyphicon-eye-close';" 
+                                           onmouseout="$('#publishProfilePassword').prop('type', 'password'); this.className = 'glyphicon glyphicon-eye-open';" 
+                                           onmouseup="$('#publishProfilePassword').prop('type', 'password'); this.className = 'glyphicon glyphicon-eye-open';">
+                                        </i>
+                                    </span>
+                                </div>
+                        </md-input-container>
+
+                        <div class="modal fade" id="publishUserNamePasswordHelpModal" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Where to get the UserName and Password from?</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Download the Publish profile for this site and enter the UserName and Password from that file in these fields.You may download the publish profile by navigating to the Overview blade for your site and clicking on <b>Get publish profile.</b></p>
+                                        <img style="width:90%" src="https://i.stack.imgur.com/1vg64.png" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div layout-gt-sm="row" style="background-color:#f6f6f6">
+                            <a href="#" data-toggle="modal" data-target="#siteInstancesHelpModal">
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                            </a>
+
+                            <md-input-container class="md-block" style="width:25%">
+                                <label># Instances this site runs on</label>
+                                <input type="number" value="1" step="any" name="siteInstances" id="siteInstances" min="1" max="15"
+                                       onkeyup="isNaN(parseInt(this.value)) ? this.value = 0 : ((parseInt(this.value)>10)?this.value=10:this.value=parseInt(this.value));"
+                                       ng-pattern="/^1234$/" />
+                            </md-input-container>
+
+                            <div>
+                                <md-button class="md-raised md-primary" ng-click="getAndUpdateInstanceDetails();" style="background-color:#0058ad; border-color:#0058ad">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Save Settings & Fetch Instance Details
+                                </md-button>
+
+                            </div>
+
+                            <md-content flex layout-padding style="background-color:inherit">
+                                <h4><label id="instanceCount"> {{hostingInstances.length}} instance(s) identified </label></h4>
+                            </md-content>
+
+
+                            <div class="modal fade" id="siteInstancesHelpModal" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">How to determine the number of instances this site is running on?</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Navigate to the Scale Out blade and make a note of the number of instances against your site.</p>
+                                            <p><i>Note : The extension currently supports connecting to only up to 10 instances even if your site is running on more than 10 instances. <br />If your site is running on more than 10 instances and the instance you want to connect to does not appear, simply click on the <b>Save Settings & Fetch Instance Details</b> button and a set of 10 instances at random will be re-selected. You may repeat this untill you find the instance you want to connect to has been identified.</i></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div layout-gt-sm="row" style="background-color:#f6f6f6;" id="connectToSettings">
+                            <md-input-container>
+                                <label>Conect To...</label>
+                                <md-select ng-model="selectedHostingInstance" multiple="" ng-model-options="{trackBy: '$value.InstanceId'}">
+                                    <button ng-click="checkUncheckAll()" style="float:left;background-color:#0058ad; border-color:#0058ad" class="btn btn-info btn-sm">Check / Uncheck All</button>
+                                    <md-optgroup label="&nbsp;">
+                                        <md-option ng-value="hostingInstance" ng-repeat="hostingInstance in hostingInstances">{{hostingInstance.DisplayName}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container class="md-block">
+                                <md-button class="md-raised md-primary" ng-click="initiateKuduConnection();" style="background-color:#0058ad; border-color:#0058ad">
+                                    <span class="glyphicon glyphicon-log-in"></span> Open Console window(s)
+                                </md-button>
+                            </md-input-container>
+                        </div>
+                        <!--CONTENT OF ACCORDION-->
+                    </div>
+                </div>
+            </div>
+        </md-content>
+
+
+
+        
+          
+        
+            <div  id="tabsContainer">
+                <hr />
+                <div ng-view>
+                    <div ng-cloak>
+                        <md-content>
+                            
+                                <md-tabs md-dynamic-height md-border-bottom>
+                                    <md-tab label="cmd">
+                                        <!--<md-input-container md-no-float class="md-block">
+                                                <input ng-model="globalCommand" placeholder="CMD" />
+                                                <md-button class="md-raised md-primary"  style="background-color:#0058ad; border-color:#0058ad">
+                                                    Run this CMD on all connected instnaces
+                                                </md-button>
+                                            </md-input-container>-->
+
+
+                                        <div style="padding-left:5px" id="cmdPromptColl" data-ng-repeat="instance in connectedInstances">
+                                            <md-content>
+                                                <h4>{{instance.DisplayName}}</h4>
+                                            </md-content>
+                                            <div id="{{instance.cmdPromptContainerId}}" class="left-aligned">
+                                                <div id="{{instance.kuduExecConsoleId}}" class="left-aligned"></div>
+                                            </div>
+                                            <hr />
+                                        </div>
+                                    </md-tab>
+
+                                    <md-tab label="pshell">
+                                        <md-content class="md-padding">
+                                            <h1 class="md-display-2">PowerShell</h1>
+                                            <p><h3>Coming soon... </h3> Click <a href="mailto:nmallick@microsoft.com?Subject=Add%20support%20for%20Powershell">here</a> for a +1 for this feature</p>
+                                        </md-content>
+                                    </md-tab>
+                                </md-tabs>
+                            
+                        </md-content>
+                    </div>
+                </div>
+            </div>
+
+        <script src="/multiconsoleext/scripts/Kudu/jquery-console/jquery.console.js"></script>
+        <script src="/multiconsoleext/scripts/Controllers/consoleCtrl.js"></script>
+        <script src="/multiconsoleext/scripts/Kudu/KuduExec.js"></script>
+
+
+</form>
+
+</body>
+</html>
