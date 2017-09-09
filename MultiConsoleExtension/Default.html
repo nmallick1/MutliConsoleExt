@@ -1,8 +1,8 @@
 ﻿<!DOCTYPE html>
-<html ng-app="MultiConsole"  style="background-color:#215b7d;">
+<html ng-app="MultiConsole" style="background-color:#215b7d;">
 <head>
     <title>Multi Console View - SPA</title>
-    
+
 
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -19,7 +19,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-animate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-aria.min.js"></script>
     <!-- Compiled AngularJS -->
-
     <!-- AngularJS Material CSS now available via Google CDN; version 1.1.4 used here -->
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.css">
 
@@ -34,23 +33,86 @@
 
     <style>
         /*To make sure the text within button appears as typed and not all capitalized*/
-       .md-button {
+        .md-button {
             text-transform: none;
         }
-       /*To make sure the text within button appears as typed and not all capitalized*/
+        /*To make sure the text within button appears as typed and not all capitalized*/
 
-       /*STYLES form ACCORDION*/
-       .md-accordion .expandCollapse { width:30px; height:30px; position:relative; font-size:20px; font-weight:bold; cursor:pointer; color:#fff; display:block; margin-top: -2px; margin-left: -2px; overflow:hidden; } 
-       .md-accordion .expandCollapse:active { border:0px; }
-       .md-accordion .expandCollapse:before, .md-accordion .expandCollapse:after {  width:30px; height:30px; display:block; position:absolute; top:0; left:0; line-height:32px; text-align:center; -webkit-transition: .3s all ease-out; transition: .3s all ease-out; }
-       .md-accordion .expandCollapse:before { opacity:1; -webkit-transform: rotate(0deg); transform: rotate(0deg); content: "|"; margin-top:-3px; }
-       .md-accordion .expandCollapse:after { opacity:1; -webkit-transform: rotate(-90deg); transform: rotate(-90deg); content: "|"; margin-left:-3px; }
-       .md-accordion .active:before { opacity:1; -webkit-transform: rotate(90deg); transform: rotate(90deg); margin-left:3px; margin-top:0px; }
-       .md-accordion .dataContent { background: #F2F2F2; height:0px; overflow:hidden; -webkit-transition: .3s all ease-out; transition: .3s all ease-out; }
-       .md-accordion .activeContent { height:inherit; padding:0; display:block; }
-       .md-accordion md-toolbar{ cursor:pointer; border-bottom:1px solid rgb(63,107,181) }
-       /*STYLES form ACCORDION*/
+        /*STYLES form ACCORDION*/
+        .md-accordion .expandCollapse {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            display: block;
+            margin-top: -2px;
+            margin-left: -2px;
+            overflow: hidden;
+        }
 
+            .md-accordion .expandCollapse:active {
+                border: 0px;
+            }
+
+            .md-accordion .expandCollapse:before, .md-accordion .expandCollapse:after {
+                width: 30px;
+                height: 30px;
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                line-height: 32px;
+                text-align: center;
+                -webkit-transition: .3s all ease-out;
+                transition: .3s all ease-out;
+            }
+
+            .md-accordion .expandCollapse:before {
+                opacity: 1;
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                content: "|";
+                margin-top: -3px;
+            }
+
+            .md-accordion .expandCollapse:after {
+                opacity: 1;
+                -webkit-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+                content: "|";
+                margin-left: -3px;
+            }
+
+        .md-accordion .active:before {
+            opacity: 1;
+            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+            margin-left: 3px;
+            margin-top: 0px;
+        }
+
+        .md-accordion .dataContent {
+            background: #F2F2F2;
+            height: 0px;
+            overflow: hidden;
+            -webkit-transition: .3s all ease-out;
+            transition: .3s all ease-out;
+        }
+
+        .md-accordion .activeContent {
+            height: inherit;
+            padding: 0;
+            display: block;
+        }
+
+        .md-accordion md-toolbar {
+            cursor: pointer;
+            border-bottom: 1px solid rgb(63,107,181);
+        }
+        /*STYLES form ACCORDION*/
     </style>
 
 </head>
@@ -59,81 +121,61 @@
 
         <md-content>
             <div class="md-accordion">
-                <md-toolbar ng-init="data.expanded = true" ng-click="data.expanded = !data.expanded">                
-                    <div class="md-toolbar-tools"  style="background-color:#0058ad; border-color:#0058ad">                        
-                        <div><span class="glyphicon glyphicon-cog"></span> Settings</div>                        
+                <md-toolbar ng-init="data.expanded = true" ng-click="data.expanded = !data.expanded">
+                    <div class="md-toolbar-tools" style="background-color:#0058ad; border-color:#0058ad">
+                        <div><span class="glyphicon glyphicon-cog"></span> Settings</div>
                         <div flex=""> <!--Place holder here so that the next div to expand collapse appears on the right ---> </div>
                         <div ng-class="{expandCollapse:true, active:data.expanded}"></div>
                     </div>
                 </md-toolbar>
                 <div ng-class="{dataContent:true, activeContent:data.expanded}">
                     <div style="padding:10px">
-                        <!--CONTENT OF ACCORDION-->
+                        <!--CONTENT OF ACCORDION-->                        
+
+                        <!--Upload Publish Profile button-->
                         <div layout-gt-sm="row" style="background-color:#f6f6f6">
-                            <a href="#" data-toggle="modal" data-target="#publishUserNamePasswordHelpModal">
-                                <span class="glyphicon glyphicon-question-sign"></span>
-                            </a>
-                            <md-input-container flex>
-                                <label>UserName</label>
-                                <input id="publishProfileUserName" ng-model="publishProfileUserName" type="text" />
-                            </md-input-container>
-                            <a href="#" data-toggle="modal" data-target="#publishUserNamePasswordHelpModal">
-                                <span class="glyphicon glyphicon-question-sign"></span>
-                            </a>
-                            <md-input-container flex>
-                                <div class="input-group" >
-                                    <label>Password</label>
-                                    <input id="publishProfilePassword" ng-model="publishProfilePassword" type="password" />
-                                    <span style="background-color:inherit;border:none" class="input-group-addon">
-                                        <i style="padding-bottom:20px;cursor:default;" class="glyphicon glyphicon-eye-open" 
-                                           onmousedown="$('#publishProfilePassword').prop('type', 'text'); this.className = 'glyphicon glyphicon-eye-close';" 
-                                           onmouseout="$('#publishProfilePassword').prop('type', 'password'); this.className = 'glyphicon glyphicon-eye-open';" 
-                                           onmouseup="$('#publishProfilePassword').prop('type', 'password'); this.className = 'glyphicon glyphicon-eye-open';">
-                                        </i>
-                                    </span>
-                                </div>
-                            </md-input-container>
-                            
-                            <div class="modal fade" id="publishUserNamePasswordHelpModal" role="dialog">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            <h4 class="modal-title">Where to get the UserName and Password from?</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Download the Publish profile for this site and enter the UserName and Password from that file in these fields.You may download the publish profile by navigating to the Overview blade for your site and clicking on <b>Get publish profile.</b></p>
-                                            <img style="width:90%" src="https://i.stack.imgur.com/1vg64.png" />
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <div>
+                                <input type="file" style="visibility:hidden" id="upldPublishProfile" onchange="angular.element(this).scope().uploadPublishProfile(this);" />
+
+                                <md-button class="md-raised md-primary" ng-click="showUploadDialog();" style="background-color:#0058ad; border-color:#0058ad">
+                                    <span class="glyphicon glyphicon-upload"></span> Upload Publish Profile
+                                </md-button>
+                                <a href="#" data-toggle="modal" data-target="#upldPublishProfileHelpModal">
+                                    <span class="glyphicon glyphicon-question-sign"></span>
+                                </a>
+                                <div class="modal fade" id="upldPublishProfileHelpModal" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <h4 class="modal-title">Where to get the UserName and Password from?</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Download the Publish profile for this site and upload the PublishSettings file.You may download the publish profile by navigating to the Overview blade for your site and clicking on <b>Get publish profile.</b></p>
+                                                <img style="width:90%" src="https://i.stack.imgur.com/1vg64.png" />
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div layout-gt-sm="row" style="background-color:#f6f6f6">
-                            <div>
-                                <md-button class="md-raised md-primary" ng-click="getAndUpdateInstanceDetails();" style="background-color:#0058ad; border-color:#0058ad">
-                                    <span class="glyphicon glyphicon-floppy-disk"></span> Save Settings & Fetch Instance Details
-                                </md-button>
 
                             </div>
                         </div>
 
                         <div layout-gt-sm="row" style="background-color:#f6f6f6;align-items:baseline">
-                            <md-progress-circular id = "progressCircular" layout-padding md-mode="indeterminate" style="align-self:center"></md-progress-circular>
-                            <span id="checkMark" style="color:#32CD32;font-size:25px" class="glyphicon glyphicon-ok" ></span>
+                            <md-progress-circular id="progressCircular" layout-padding md-mode="indeterminate" style="align-self:center"></md-progress-circular>
+                            <span id="checkMark" style="color:#32CD32;font-size:25px" class="glyphicon glyphicon-ok"></span>
+                            <span id="errorMark" style="color:red;font-size:25px;" class="glyphicon glyphicon-remove"></span>
                             <md-content flex layout-padding style="background-color:inherit">
                                 <h4 style="display:inline-block">
-                                    <label id="instanceCount"> {{hostingInstances.length}} instance(s) identified </label>
+                                    <label id="instanceCount"> {{message}}</label>
                                     <md-button id="btnRefresh" class="md-raised md-primary" ng-click="refreshInstanceDetails()" style="background-color:#0058ad; border-color:#0058ad;">
                                         <span class="glyphicon glyphicon-refresh"></span> Refresh
                                     </md-button>
                                 </h4>
                             </md-content>
-                                
                         </div>
 
                         <div layout-gt-sm="row" style="background-color:#f6f6f6;" id="connectToSettings">
@@ -157,10 +199,10 @@
                 </div>
             </div>
         </md-content>
-        
+
 
         <!--This is the where the console windows will be displayed-->
-        <div  id="tabsContainer">
+        <div id="tabsContainer">
             <hr />
             <div ng-view>
                 <div ng-cloak>
@@ -192,7 +234,7 @@
         <script src="/multiconsoleext/scripts/Kudu/jquery-console/jquery.console.js"></script>
         <script src="/multiconsoleext/scripts/Controllers/consoleCtrl.js"></script>
         <script src="/multiconsoleext/scripts/Kudu/KuduExec.js"></script>
-</form>
+    </form>
 
 </body>
 </html>
