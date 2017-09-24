@@ -22,7 +22,7 @@ namespace MultiConsoleExtension.Controllers
                 rootPath = System.IO.Path.GetTempPath(); // For testing purposes
             };
             var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\MultiConsoleExt");
-            var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
+            var userSettingsFile = userSettingsDir + @"\siteConnectionSetttings.json";
 
             SiteSettings siteSettings = new SiteSettings();
             if (File.Exists(userSettingsFile))

@@ -57,7 +57,7 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
     }
 
     $scope.init = function () {
-        $("#tabsContainer").hide(); //Section of the page where console windows will be opened
+        //$("#tabsContainer").hide(); //Section of the page where console windows will be opened
         $("#connectToSettings").hide(); // Drop down to display a list of all the instances that were identified
 
         $scope.showHideMessage(false, "", "");
