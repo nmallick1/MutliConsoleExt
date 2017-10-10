@@ -45,7 +45,7 @@ namespace MultiConsoleExtension.Controllers
                     {
                         rootPath = System.IO.Path.GetTempPath(); // For testing purposes
                     };
-                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\MultiConsoleExt");
+                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
                     var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
 
                     
