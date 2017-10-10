@@ -37,7 +37,7 @@
 
                           $(iElement).bind('contextmenu', function (event) {
 
-                              console.log("Log from app.js contextMenu");
+                              //console.log("Log from app.js contextMenu");
                               //contextMenuClickedFor = event.currentTarget;
                               if (!scope.$$phase) {
                                   scope.$apply();
