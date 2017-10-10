@@ -11,7 +11,7 @@ namespace MultiConsoleExtension.Models
         public string AuthHeader { get; set; }
         public int PID { get; set; }
         public bool ProfileIIS { get; set; }
-        public enum Action {Start , Stop, Info};
+        public enum Action {Start , Stop, Info, MiniDump, FullDump, Kill};
         public Action ActionRequested { get; set; }
 
         public ProfileModel()
