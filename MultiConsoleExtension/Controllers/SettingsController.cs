@@ -21,8 +21,23 @@ namespace MultiConsoleExtension.Controllers
             {
                 rootPath = System.IO.Path.GetTempPath(); // For testing purposes
             };
-            var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\MultiConsoleExt");
-            var userSettingsFile = userSettingsDir + @"\siteConnectionSetttings.json";
+            var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
+            var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
+
+            if(!Directory.Exists(userSettingsDir+@"\FullDump"))
+            {
+                Directory.CreateDirectory(userSettingsDir + @"\FullDump");
+            }
+
+            if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
+            {
+                Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
+            }
+
+            if (!Directory.Exists(userSettingsDir + @"\ProfilerTrace"))
+            {
+                Directory.CreateDirectory(userSettingsDir + @"\ProfilerTrace");
+            }
 
             SiteSettings siteSettings = new SiteSettings();
             if (File.Exists(userSettingsFile))
@@ -63,14 +78,14 @@ namespace MultiConsoleExtension.Controllers
                     var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(siteSettings.UserName + ":" + siteSettings.Password);
                     siteSettings.AuthHeader = "Basic " + System.Convert.ToBase64String(plainTextBytes);
 
-                    //Save settings to a local file calles %home%\site\siteextensions\MultiConsoleExt\siteConnectionSettings.json
+                    //Save settings to a local file calles %home%\site\siteextensions\InstanceDetective\siteConnectionSettings.json
 
                     var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
                     if (rootPath == null)
                     {
                         rootPath = System.IO.Path.GetTempPath(); // For testing purposes
                     };
-                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\MultiConsoleExt");
+                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
                     var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
 
                     if (!Directory.Exists(userSettingsDir))
@@ -79,6 +94,16 @@ namespace MultiConsoleExtension.Controllers
                     }
 
                     File.WriteAllText(userSettingsFile, JsonConvert.SerializeObject(siteSettings));
+
+                    if (!Directory.Exists(userSettingsDir + @"\FullDump"))
+                    {
+                        Directory.CreateDirectory(userSettingsDir + @"\FullDump");
+                    }
+                    if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
+                    {
+                        Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
+                    }
+
                     return Request.CreateResponse(HttpStatusCode.OK, siteSettings);
                 }
                 else
