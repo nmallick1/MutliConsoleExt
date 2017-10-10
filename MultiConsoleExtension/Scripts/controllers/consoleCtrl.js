@@ -1,4 +1,9 @@
-angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', function ($scope, $http) {
+
+angular.module('MultiConsole', ['ngMaterial', 'directive.contextMenu']).controller('consoleCtrl', function ($scope, $http) {
+
+
+
+
 
     $scope.showHideMessage = function (show, level, message) {
         if (show) {
@@ -37,18 +42,22 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
         }
     }
 
-    $scope.getSiteConnectionSettings = function () {
-        $http.get("/multiconsoleext/api/Settings").then(function (resp) {
+    $scope.detectInstances = function () {
+        //Start detecting instances after a while, let Angular complete its binding process
+        //Attempt to find instnaces only if the Auth settings are present, else the user should update username and password
+        $scope.consecutiveKnownInstancesFound = 0;
+        $scope.showHideMessage(true, "Progress", "Looking for Instances.. " + $scope.hostingInstances.length + " instance(s) identified");
+        setTimeout($scope.callRemoteToGetInstanceDetailsAuto, 1500);
+    }
+
+    $scope.getSiteConnectionSettingsAndDetectInstances = function () {
+        $http.get("/InstanceDetective/api/Settings").then(function (resp) {
             $scope.publishProfileUserName = resp.data.UserName;
             $scope.publishProfilePassword = resp.data.Password;
             authHeader = resp.data.AuthHeader;
 
             if (authHeader != "") {
-                //Start detecting instances after a while, let Angular complete its binding process
-                //Attempt to find instnaces only if the Auth settings are present, else the user should update username and password
-                $scope.consecutiveKnownInstancesFound = 0;
-                $scope.showHideMessage(true, "Progress", "Looking for Instances.. " + $scope.hostingInstances.length + " instance(s) identified");
-                setTimeout($scope.callRemoteToGetInstanceDetailsAuto, 1500);
+                $scope.detectInstances();
             }
 
         }, function (x) {
@@ -57,7 +66,7 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
     }
 
     $scope.init = function () {
-        //$("#tabsContainer").hide(); //Section of the page where console windows will be opened
+        $("#tabsContainer").hide(); //Section of the page where console windows will be opened
         $("#connectToSettings").hide(); // Drop down to display a list of all the instances that were identified
 
         $scope.showHideMessage(false, "", "");
@@ -76,7 +85,16 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
         $scope.publishProfileUserName = "";
         $scope.publishProfilePassword = "";
 
-        $scope.getSiteConnectionSettings();
+        
+        if (authHeader != "")
+        {
+            //This will execute only when authHeader is hardcoded during testing
+            $scope.detectInstances();
+        }
+        else
+        {
+            $scope.getSiteConnectionSettingsAndDetectInstances();
+        }
     }
 
 
@@ -169,11 +187,12 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
                 InstanceId: $scope.selectedHostingInstance[i].InstanceId,
                 DisplayName: $scope.selectedHostingInstance[i].DisplayName,
                 cmdPromptContainerId: "cmdPromptContainer" + i,
-                kuduExecConsoleId: "KuduExecConsoleTest" + i
+                kuduExecConsoleId: "KuduExecConsole" + i
             });
         }
 
         LoadConsole($scope.connectedInstances);
+        profilerInit($scope, $http);
     }
 
     $scope.showUploadDialog = function () {
@@ -196,7 +215,7 @@ angular.module('MultiConsole', ['ngMaterial']).controller('consoleCtrl', functio
             var data = new FormData();
             data.append('file', file);
 
-            var uploadUrl = "/multiconsoleext/api/Settings";
+            var uploadUrl = "/InstanceDetective/api/Settings";
             $http.post(uploadUrl, data, {
                 withCredentials: true,
                 headers: { 'Content-Type': undefined },
