@@ -26,12 +26,13 @@ namespace MultiConsoleExtension.Controllers
             {
                 ProfileModel profilingParams = new ProfileModel();
                 profilingParams = input.ToObject<ProfileModel>();
-                if(profilingParams.PID > 0)
-                {                                        
+                if (profilingParams.PID > 0)
+                {
 
                     if (profilingParams.ActionRequested == ProfileModel.Action.Start)
                     {
-                        string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/" + profilingParams.ActionRequested);
+                        #region Start Profiling
+                        string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested);
                         if (url.IndexOf(".scm.azurewebsites.net") < 1)
                         {
                             url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
@@ -39,7 +40,7 @@ namespace MultiConsoleExtension.Controllers
                         //HTTP POST REQUEST
                         using (var client = new WebClient())
                         {
-                            if(profilingParams.ProfileIIS)
+                            if (profilingParams.ProfileIIS)
                             {
                                 url += "?iisProfiling=true";
                             }
@@ -48,22 +49,25 @@ namespace MultiConsoleExtension.Controllers
                             client.Headers[HttpRequestHeader.Authorization] = profilingParams.AuthHeader;
                             client.Headers[HttpRequestHeader.Cookie] = "ARRAffinity=" + profilingParams.ARRAffinity; //If invalid cookie value is passed then the request will be load balanced and sent to a random worker which may or may not have the same PID
 
-                            try {
+                            try
+                            {
                                 result = client.UploadString(url, "POST", "");
                             }
-                            catch(Exception e)
+                            catch (Exception e)
                             {
                                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "There was an error returned from the server : " + e.Message);
-                            }                            
-                            return Request.CreateResponse(HttpStatusCode.OK, result);                                                                                    
+                            }
+                            return Request.CreateResponse(HttpStatusCode.OK, result);
                         }
+                        #endregion
                     }
                     else
                     {
-                        if(profilingParams.ActionRequested == ProfileModel.Action.Stop)
+                        if (profilingParams.ActionRequested == ProfileModel.Action.Stop)
                         {
+                            #region Stop Profiling
                             //HTTP GET REQUEST to stop the trace and download the trace file
-                            string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/" + profilingParams.ActionRequested);
+                            string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested);
                             if (url.IndexOf(".scm.azurewebsites.net") < 1)
                             {
                                 url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
@@ -75,20 +79,69 @@ namespace MultiConsoleExtension.Controllers
                                 client.Headers[HttpRequestHeader.ContentType] = "application/json";
                                 client.Headers[HttpRequestHeader.Authorization] = profilingParams.AuthHeader;
                                 client.Headers[HttpRequestHeader.Cookie] = "ARRAffinity=" + profilingParams.ARRAffinity; //If invalid cookie value is passed then the request will be load balanced and sent to a random worker which may or may not have the same PID
-                                
-                                
-                                HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-                                response.Content = new ByteArrayContent(client.DownloadData(url));
-                                response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-                                response.Content.Headers.ContentDisposition.FileName = "profile_" + System.DateTime.Now.Ticks + "_w3wp_" + profilingParams.PID.ToString() + ".diagsession";
-                                response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                                return response;                                
+
+                                try
+                                {
+                                    //Save the profiler trace on disk inside the folder ProfilerTrace here instead of passing it back in response from memory and respond back with the file name
+                                    var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
+                                    if (rootPath == null)
+                                    {
+                                        rootPath = System.IO.Path.GetTempPath(); // For testing purposes
+                                    };
+                                    string userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
+
+                                    if (!Directory.Exists(userSettingsDir + @"\FullDump"))
+                                    {
+                                        Directory.CreateDirectory(userSettingsDir + @"\FullDump");
+                                    }
+
+                                    if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
+                                    {
+                                        Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
+                                    }
+
+                                    if (!Directory.Exists(userSettingsDir + @"\ProfilerTrace"))
+                                    {
+                                        Directory.CreateDirectory(userSettingsDir + @"\ProfilerTrace");
+                                    }
+
+                                    string profilerTraceFilePath = userSettingsDir + @"\ProfilerTrace\";
+
+                                    string profilerTraceFileName = ".diagsession";
+
+                                    if (profilingParams.ProfileIIS)
+                                    {
+                                        profilerTraceFileName = "_IIS" + profilerTraceFileName;
+                                    }
+                                    profilerTraceFileName = "Profiler_" + System.DateTime.Now.Ticks.ToString() + "_PID_" + profilingParams.PID.ToString() + profilerTraceFileName;
+
+                                    client.DownloadFile(url, profilerTraceFilePath + profilerTraceFileName);
+
+                                    //(profilerTraceFilePath) will most likely be the following
+                                    //D:\home\site\siteextensions\InstanceDetective\ProfilerTrace
+                                    //return path should be /site/siteextensions/InstanceDetective/ProfilerTrace/ DO NOT FORGET THE '/' AT THE END OF THE PATH
+
+                                    return Request.CreateResponse(HttpStatusCode.OK, (profilerTraceFilePath + profilerTraceFileName).Replace(@"D:\home\", "").Replace(@"\", "/"));
+
+                                    //HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+                                    //response.Content = new ByteArrayContent(client.DownloadData(url));
+                                    //response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+                                    //response.Content.Headers.ContentDisposition.FileName = "profile_" + System.DateTime.Now.Ticks + "_w3wp_" + profilingParams.PID.ToString() + ".diagsession";
+                                    //response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                                    //return response;
+                                }
+                                catch (Exception e)
+                                {
+                                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error Returned by Kudu : Exception : " + e.Message);
+                                }
                             }
+                            #endregion
                         }
                         else
                         {
                             if (profilingParams.ActionRequested == ProfileModel.Action.Info)
                             {
+                                #region Get Process Info
                                 //Populate a list of ProcessModel objects for this site and return the data
                                 string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/");
                                 if (url.IndexOf(".scm.azurewebsites.net") < 1)
@@ -108,13 +161,13 @@ namespace MultiConsoleExtension.Controllers
                                     {
                                         result = client.DownloadString(url);
                                     }
-                                    catch(Exception e)
+                                    catch (Exception e)
                                     {
                                         return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "An error occurred while getting the process list from Kudu : " + e.Message);
                                     }
                                     processList = JsonConvert.DeserializeObject<KuduProcess[]>(result);
                                     List<ProcessModel> response = new List<ProcessModel>();
-                                    foreach(KuduProcess process in processList)
+                                    foreach (KuduProcess process in processList)
                                     {
                                         ProcessModel currProcess = new ProcessModel();
                                         using (WebClient childClient = new WebClient())
@@ -129,7 +182,7 @@ namespace MultiConsoleExtension.Controllers
                                             //To access value that is retruned as an Array in the response.
                                             //Does not work for nested array's
                                             //JObject.FromObject(obj.Value<object>("environment_variables")).Value<string>("APPDATA") 
-                                            
+
 
 
                                             currProcess.MachineName = JObject.FromObject(obj.Value<object>("environment_variables")).Value<string>("COMPUTERNAME");
@@ -140,21 +193,61 @@ namespace MultiConsoleExtension.Controllers
                                             currProcess.isKudu = obj.Value<bool>("is_scm_site");
                                             currProcess.MiniDumpURI = obj.Value<string>("minidump");
                                             currProcess.ProfileTimeoutSec = obj.Value<int>("iis_profile_timeout_in_seconds");
-                                            response.Add(currProcess);                                            
+                                            response.Add(currProcess);
                                         }
                                     }
 
-                                    return Request.CreateResponse(HttpStatusCode.OK, response);                                    
+                                    return Request.CreateResponse(HttpStatusCode.OK, response);
                                 }
+                                #endregion
                             }
                             else
                             {
-                                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Invalid action requested. Allowed actions are Start, Stop");
+
+                                if (profilingParams.ActionRequested == ProfileModel.Action.Kill)
+                                {
+                                    #region Kill Process
+                                    //HTTP GET REQUEST to stop the trace and download the trace file
+                                    string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID);
+                                    if (url.IndexOf(".scm.azurewebsites.net") < 1)
+                                    {
+                                        url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID;
+                                    }
+
+                                    using (var client = new WebClient())
+                                    {
+
+                                        client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                                        client.Headers[HttpRequestHeader.Authorization] = profilingParams.AuthHeader;
+                                        client.Headers[HttpRequestHeader.Cookie] = "ARRAffinity=" + profilingParams.ARRAffinity; //If invalid cookie value is passed then the request will be load balanced and sent to a random worker which may or may not have the same PID
+                                        string resp = "";
+                                        try
+                                        {
+                                            resp = client.UploadString(url, "DELETE", "");
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error Returned by Kudu " + resp + " Exception : " + e.Message);
+                                        }
+
+                                        return Request.CreateResponse(HttpStatusCode.OK, "Process " + profilingParams.PID + " terminated.");
+                                    }
+                                    #endregion
+                                }
+                                else
+                                {
+                                    #region Undefined Action
+                                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Invalid action requested. Allowed actions are Start, Stop, Info & Kill");
+                                    #endregion
+                                }
                             }
                         }
                     }
                 }
-                return Request.CreateResponse(HttpStatusCode.OK, "");
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Unable to execute PreDefined Actions. Please pass a positive number for the PID. Passed PID was " + profilingParams.PID.ToString());
+                }
             }
         }
     }
