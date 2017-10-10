@@ -196,6 +196,7 @@
     <Content Include="Global.asax" />
     <Content Include="applicationHost.xdt" />
     <None Include="Properties\PublishProfiles\FileSystem.pubxml" />
+    <Content Include="icon_detective.png" />
     <Content Include="Scripts\controllers\app.js" />
     <Content Include="Scripts\controllers\consoleCtrl.js" />
     <Content Include="Scripts\controllers\Profiler.js" />
