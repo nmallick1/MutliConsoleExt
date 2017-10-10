@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html ng-app="MultiConsole" style="background-color:#215b7d;">
 <head>
-    <title>Multi Console View - SPA</title>
+    <title>Instance Detective</title>
 
 
     <!-- jQuery library -->
@@ -32,6 +32,12 @@
     <link rel="stylesheet" href="Content/FileBrowser.css">
 
     <style>
+
+        /*To make sure that when a menu item is disabled, it's click event does not fire. Set this on an li element*/
+        .dropdown-menu .disabled {
+            pointer-events: none;
+            }
+
         /*To make sure the text within button appears as typed and not all capitalized*/
         .md-button {
             text-transform: none;
@@ -50,7 +56,7 @@
             display: block;
             margin-top: -2px;
             margin-left: -2px;
-            overflow: hidden;
+            overflow: hidden;            
         }
 
             .md-accordion .expandCollapse:active {
@@ -117,7 +123,9 @@
 
 </head>
 <body style="background-color:inherit;padding-left:15px;padding-right:15px" ng-controller="consoleCtrl" role="document">
+
     <form name="MainForm">
+
 
         <md-content>
             <div class="md-accordion">
@@ -130,8 +138,7 @@
                 </md-toolbar>
                 <div ng-class="{dataContent:true, activeContent:data.expanded}">
                     <div style="padding:10px">
-                        <!--CONTENT OF ACCORDION-->                        
-
+                        <!--CONTENT OF ACCORDION-->
                         <!--Upload Publish Profile button-->
                         <div layout-gt-sm="row" style="background-color:#f6f6f6">
                             <div>
@@ -201,6 +208,8 @@
         </md-content>
 
 
+
+
         <!--This is the where the console windows will be displayed-->
         <div id="tabsContainer">
             <hr />
@@ -208,6 +217,55 @@
                 <div ng-cloak>
                     <md-content>
                         <md-tabs md-dynamic-height md-border-bottom>
+                            <md-tab label="Profiling">
+                                <md-content class="md-padding">
+
+                                    <div layout-gt-sm="row" style="align-items:baseline">
+                                        <md-button id="btnRefresh" class="md-raised md-primary" ng-click="refreshProcessDetailsForAllInstances()" style="background-color:#0058ad; border-color:#0058ad;">
+                                            <span class="glyphicon glyphicon-refresh"></span> Refresh Process List
+                                        </md-button>
+                                        <iframe id="fileDownloadHiddenIFrame" src="" hidden="hidden"></iframe>
+                                        <md-progress-circular id="progressCircularProfiling" layout-padding md-mode="indeterminate" style="align-self:center"></md-progress-circular>
+                                        <span id="checkMarkProfiling" style="color:#32CD32;font-size:25px" class="glyphicon glyphicon-ok"></span>
+                                        <span id="errorMarkProfiling" style="color:red;font-size:25px;" class="glyphicon glyphicon-remove"></span>
+                                        <md-content flex layout-padding style="background-color:inherit">
+                                            <h4 style="display:inline-block">
+                                                <label id="instanceCount"> {{profilingMSG}}</label>
+                                            </h4>
+
+                                        </md-content>
+                                    </div>
+                                </md-content>
+                                <div style="padding-left:5px" id="cmdPromptColl" data-ng-repeat="instance in profilingInstances">
+                                    <div><h4>{{instance.DisplayName}}</h4></div>
+                                    <div class="table-responsive" id="{{instance.profilerContainerId}}">
+                                        <div id="{{instance.profilerProcessListId}}">
+                                            <table class="table table-hover table-condensed table-bordered" on-right-click="ShowContextMenu()">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Process</th>
+                                                        <th>PID</th>
+                                                        <th>Site</th>
+                                                        <th>Action Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr data-ng-repeat="processInfo in instance.processProfilingInfo" context="profileProcessContextMenu" id="{{processInfo.InstanceId + '_' + processInfo.PID}}">
+                                                        <td>
+                                                            {{processInfo.ProcessName}}
+                                                            <span ng-if="processInfo.isKudu == true" class="label label-primary">SCM</span>
+                                                        </td>
+                                                        <td>{{processInfo.PID}}</td>
+                                                        <td>{{processInfo.Site}}</td>
+                                                        <td><div style="cursor:default" id="{{processInfo.InstanceId + '_' + processInfo.PID + '_DIV'}}">Right click to take an action on this process</div></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                </div>
+                            </md-tab>
                             <md-tab label="cmd">
                                 <div style="padding-left:5px" id="cmdPromptColl" data-ng-repeat="instance in connectedInstances">
                                     <md-content>
@@ -219,16 +277,20 @@
                                     <hr />
                                 </div>
                             </md-tab>
-                            <md-tab label="Profiling">
-                                <md-content class="md-padding">
-                                    <h1 class="md-display-2">Profiling</h1>
-                                    <p><h3>Coming soon... </h3> Click <a href="mailto:nmallick@microsoft.com?Subject=Add%20support%20for%20Powershell">here</a> for a +1 for this feature</p>
-                                </md-content>
-                            </md-tab>
                             <md-tab label="pshell">
                                 <md-content class="md-padding">
                                     <h1 class="md-display-2">PowerShell</h1>
-                                    <p><h3>Coming soon... </h3> Click <a href="mailto:nmallick@microsoft.com?Subject=Add%20support%20for%20Powershell">here</a> for a +1 for this feature</p>
+                                    <p>
+                                        Please create a work item on <a target="_blank" href="https://github.com/nmallick1/MutliConsoleExt/issues">GitHub</a> asking for this feature.
+                                    </p>
+                                </md-content>
+                            </md-tab>
+                            <md-tab label="feedback">
+                                <md-content class="md-padding">
+                                    <h1 class="md-display-2">Feedback and Suggestions</h1>
+                                    <p>
+                                        Please create a work item on <a target="_blank" href="https://github.com/nmallick1/MutliConsoleExt/issues">GitHub</a>
+                                    </p>
                                 </md-content>
                             </md-tab>
                         </md-tabs>
@@ -237,9 +299,24 @@
             </div>
         </div>
 
-        <script src="/multiconsoleext/scripts/Kudu/jquery-console/jquery.console.js"></script>
-        <script src="/multiconsoleext/scripts/Controllers/consoleCtrl.js"></script>
-        <script src="/multiconsoleext/scripts/Kudu/KuduExec.js"></script>
+        <ul id="profileProcessContextMenu" role="menu" onfocus="contextMenuFocus($event)"  class="dropdown-menu">
+            <li class="dropdown-header">Dump</li>
+            <li id="miniDump"><a href="#" ng-click="generateDump($event, 'Mini Dump')">Mini Dump</a></li>
+            <li id="fullDump"><a href="#" ng-click="generateDump($event, 'Full Dump')">Full Dump</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="dropdown-header">Profiling</li>
+            <li id="profileWithIIS"><a href="#" ng-click="startProfiling($event,true)">With IIS Providers</a></li>
+            <li id="profileWithoutIIS"><a href="#" ng-click="startProfiling($event,false)">Without IIS Providers</a></li>
+            <li id="stopProfiling" style="display:none"><a href="#" ng-click="stopProfiling($event)">Stop Profiling</a></li>
+            <li role="separator" class="divider"></li>
+            <li id="killProcess"><a href="#" ng-click="killProcess($event)">Kill</a></li>
+        </ul>
+        
+        <script src="/InstanceDetective/scripts/Kudu/jquery-console/jquery.console.js"></script>
+        <script src="/InstanceDetective/scripts/Kudu/KuduExec.js"></script>
+        <script src="/InstanceDetective/scripts/Controllers/app.js"></script>
+        <script src="/InstanceDetective/scripts/Controllers/Profiler.js"></script>
+        <script src="/InstanceDetective/scripts/Controllers/consoleCtrl.js"></script>
     </form>
 
 </body>
