@@ -196,7 +196,9 @@
     <Content Include="Global.asax" />
     <Content Include="applicationHost.xdt" />
     <None Include="Properties\PublishProfiles\FileSystem.pubxml" />
+    <Content Include="Scripts\controllers\app.js" />
     <Content Include="Scripts\controllers\consoleCtrl.js" />
+    <Content Include="Scripts\controllers\Profiler.js" />
     <Content Include="Scripts\Kudu\jquery-console\jquery.console.js" />
     <Content Include="Scripts\Kudu\jquery-console\README.txt" />
     <Content Include="Scripts\Kudu\KuduConnector.js" />
@@ -238,7 +240,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>10623</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:10623/multiconsoleext</IISUrl>
+          <IISUrl>http://localhost:10623/InstanceDetective</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
