@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MultiConsoleExtension")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Instance Detective")]
+[assembly: AssemblyDescription("A WebApp Site extension that allows you to open a command prompt window to all / any of the instances hosting your site. It also allows one to take memory dumps and profiling data targetting any process hosted on any of the instances serving your site.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MultiConsoleExtension")]
+[assembly: AssemblyProduct("Instance Detective")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
