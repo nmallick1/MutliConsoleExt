@@ -5,13 +5,16 @@ if ($.serverOS === "linux") {
 }
 window.KuduExec = { workingDir: curWorkingDir };
 
+//Initializing the auth header for testing purposes
+//var authHeader = "Basic JG5tYWxsaWNrU2l0ZUV4dDp0R0V5QW5jN3NFRXloSllKNVRFd0s4czlaaGNvWEVEQ21xbWo0ZUNrcnk2TnZYOXRhQ2xMRnU0dkRRMTA=";
 var authHeader = "";
+authHeader = (window.location.hostname == "localhost") ? "Basic JG5tYWxsaWNrU2l0ZUV4dDp0R0V5QW5jN3NFRXloSllKNVRFd0s4czlaaGNvWEVEQ21xbWo0ZUNrcnk2TnZYOXRhQ2xMRnU0dkRRMTA=" : "";
 var instances = [];
 
 
 function callLocalWebAPI(command, workingDirectory, InstanceId)
 {
-    var uri = "/multiconsoleext/api/KuduCommand",
+    var uri = "/InstanceDetective/api/KuduCommand",
             request = {
                 method: "POST",
                 contentType: "application/json",
@@ -124,6 +127,7 @@ function callLocalWebAPI(command, workingDirectory, InstanceId)
                                     return;
                                 }
                                 curReportFun = reportFn;
+                                //Insert a new line here on the command prompt before submitting the command for execution
                                 SubmitCommand(line, currInstance.InstanceId).done(reportFn);
                                 // kuduExecConsole.scrollTop = kuduExecConsole.scrollHeight;
                             },
