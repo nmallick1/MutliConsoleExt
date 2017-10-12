@@ -298,7 +298,10 @@
                 </div>
             </div>
         </div>
-
+        <hr />
+        <div>
+            <footer style="color:darkgrey;text-align:left;"><b>Disclaimer :</b> This extension uses information from your Publish Profile to assist in managing connections to Azure App Service worker instances. The file remains on your Azure App Service worker instances filesystem in plaintext and is not shared with anyone. You can view / delete this file via the Kudu console by navigating to <i><span style="text-decoration: underline;">D:\home\site\siteextensions\InstanceDetective\siteConnectionSettings.json</span></i></footer>
+        </div>
         <ul id="profileProcessContextMenu" role="menu" onfocus="contextMenuFocus($event)"  class="dropdown-menu">
             <li class="dropdown-header">Dump</li>
             <li id="miniDump"><a href="#" ng-click="generateDump($event, 'Mini Dump')">Mini Dump</a></li>
