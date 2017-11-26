@@ -33,7 +33,7 @@ namespace MultiConsoleExtension.Controllers
             
             if (string.IsNullOrEmpty(siteSetting.AuthHeader))
             {
-                if (string.IsNullOrEmpty(Request.Headers.GetValues("Authorization").FirstOrDefault()))
+                if (!string.IsNullOrEmpty(Request.Headers.GetValues("Authorization").FirstOrDefault()))
                 {
                     AuthHeader = Request.Headers.GetValues("Authorization").FirstOrDefault();
                     siteSetting.AuthHeader = AuthHeader;
@@ -70,11 +70,15 @@ namespace MultiConsoleExtension.Controllers
 
 
             string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/command");
+
+            //Uncomment this section only when testing locally. Make sure to comment this during build
+            #region Redirect to local proxy and not Kudu
             if (url.IndexOf(".scm.azurewebsites.net") < 1)
             {
                 url = "https://nmallickSiteExt.scm.azurewebsites.net/command";
             }
-            
+            #endregion
+
             string jsonBody = input.ToString();
             string result = "";
 
