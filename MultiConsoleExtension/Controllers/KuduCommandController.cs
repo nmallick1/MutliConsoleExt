@@ -1,4 +1,5 @@
-﻿using MultiConsoleExtension.Models;
+﻿using MultiConsoleExtension.App_Code;
+using MultiConsoleExtension.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -40,21 +41,13 @@ namespace MultiConsoleExtension.Controllers
                 }
                 else
                 {
-                    var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
-                    if (rootPath == null)
+                    FileSystemHelper.EnsureFolderStructure();
+                    if (File.Exists(FileSystemHelper.UserSettingsFileFullPath))
                     {
-                        rootPath = System.IO.Path.GetTempPath(); // For testing purposes
-                    };
-                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
-                    var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
-
-                    
-                    if (File.Exists(userSettingsFile))
-                    {
-                        string strSettings = File.ReadAllText(userSettingsFile);
+                        string strSettings = File.ReadAllText(FileSystemHelper.UserSettingsFileFullPath);
                         siteSetting = JsonConvert.DeserializeObject<SiteSettings>(strSettings);
                         AuthHeader = siteSetting.AuthHeader;
-                    }
+                    }                    
                 }
             }
             else
@@ -71,9 +64,9 @@ namespace MultiConsoleExtension.Controllers
 
             string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/command");
 
-            //Uncomment this section only when testing locally. Make sure to comment this during build
+            //Uncomment this section only when testing locally. Make sure to comment this during build else this will break when site is not browsed via Azurewebsites URL (especially in case of ILB ASE)
             #region Redirect to local proxy and not Kudu
-            if (url.IndexOf(".scm.azurewebsites.net") < 1)
+            if (url.IndexOf(".azurewebsites.net") < 1)
             {
                 url = "https://nmallickSiteExt.scm.azurewebsites.net/command";
             }
