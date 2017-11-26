@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using Newtonsoft.Json;
 using System.Xml;
+using MultiConsoleExtension.App_Code;
 
 namespace MultiConsoleExtension.Controllers
 {
@@ -16,33 +17,12 @@ namespace MultiConsoleExtension.Controllers
     {
         public HttpResponseMessage Get()
         {
-            var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
-            if (rootPath == null)
-            {
-                rootPath = System.IO.Path.GetTempPath(); // For testing purposes
-            };
-            var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
-            var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
-
-            if(!Directory.Exists(userSettingsDir+@"\FullDump"))
-            {
-                Directory.CreateDirectory(userSettingsDir + @"\FullDump");
-            }
-
-            if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
-            {
-                Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
-            }
-
-            if (!Directory.Exists(userSettingsDir + @"\ProfilerTrace"))
-            {
-                Directory.CreateDirectory(userSettingsDir + @"\ProfilerTrace");
-            }
+            FileSystemHelper.EnsureFolderStructure();
 
             SiteSettings siteSettings = new SiteSettings();
-            if (File.Exists(userSettingsFile))
+            if (File.Exists(FileSystemHelper.UserSettingsFileFullPath))
             {
-                string strSettings = File.ReadAllText(userSettingsFile);
+                string strSettings = File.ReadAllText(FileSystemHelper.UserSettingsFileFullPath);
                 siteSettings = JsonConvert.DeserializeObject<SiteSettings>(strSettings);
             }
             else
@@ -51,7 +31,7 @@ namespace MultiConsoleExtension.Controllers
                 siteSettings.Password = "";
                 siteSettings.AuthHeader = "";
             }
-            return Request.CreateResponse(HttpStatusCode.OK, siteSettings);
+            return Request.CreateResponse(HttpStatusCode.OK, siteSettings);            
         }
 
 
@@ -80,29 +60,8 @@ namespace MultiConsoleExtension.Controllers
 
                     //Save settings to a local file calles %home%\site\siteextensions\InstanceDetective\siteConnectionSettings.json
 
-                    var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
-                    if (rootPath == null)
-                    {
-                        rootPath = System.IO.Path.GetTempPath(); // For testing purposes
-                    };
-                    var userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
-                    var userSettingsFile = userSettingsDir + @"\siteConnectionSettings.json";
-
-                    if (!Directory.Exists(userSettingsDir))
-                    {
-                        Directory.CreateDirectory(userSettingsDir);
-                    }
-
-                    File.WriteAllText(userSettingsFile, JsonConvert.SerializeObject(siteSettings));
-
-                    if (!Directory.Exists(userSettingsDir + @"\FullDump"))
-                    {
-                        Directory.CreateDirectory(userSettingsDir + @"\FullDump");
-                    }
-                    if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
-                    {
-                        Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
-                    }
+                    FileSystemHelper.EnsureFolderStructure();
+                    File.WriteAllText(FileSystemHelper.UserSettingsFileFullPath, JsonConvert.SerializeObject(siteSettings));                    
 
                     return Request.CreateResponse(HttpStatusCode.OK, siteSettings);
                 }
