@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
 using System.Net.Http.Headers;
+using MultiConsoleExtension.App_Code;
 
 namespace MultiConsoleExtension.Controllers
 {
@@ -82,30 +83,9 @@ namespace MultiConsoleExtension.Controllers
 
                                 try
                                 {
-                                    //Save the profiler trace on disk inside the folder ProfilerTrace here instead of passing it back in response from memory and respond back with the file name
-                                    var rootPath = Environment.GetEnvironmentVariable("HOME"); // For use on Azure Websites
-                                    if (rootPath == null)
-                                    {
-                                        rootPath = System.IO.Path.GetTempPath(); // For testing purposes
-                                    };
-                                    string userSettingsDir = Path.Combine(rootPath, @"site\siteextensions\InstanceDetective");
+                                    //Save the profiler trace on disk inside the folder ProfilerTrace here instead of passing it back in response from memory and respond back with the file name                                    
 
-                                    if (!Directory.Exists(userSettingsDir + @"\FullDump"))
-                                    {
-                                        Directory.CreateDirectory(userSettingsDir + @"\FullDump");
-                                    }
-
-                                    if (!Directory.Exists(userSettingsDir + @"\MiniDump"))
-                                    {
-                                        Directory.CreateDirectory(userSettingsDir + @"\MiniDump");
-                                    }
-
-                                    if (!Directory.Exists(userSettingsDir + @"\ProfilerTrace"))
-                                    {
-                                        Directory.CreateDirectory(userSettingsDir + @"\ProfilerTrace");
-                                    }
-
-                                    string profilerTraceFilePath = userSettingsDir + @"\ProfilerTrace\";
+                                    FileSystemHelper.EnsureFolderStructure();                                    
 
                                     string profilerTraceFileName = ".diagsession";
 
@@ -115,13 +95,13 @@ namespace MultiConsoleExtension.Controllers
                                     }
                                     profilerTraceFileName = "Profiler_" + System.DateTime.Now.Ticks.ToString() + "_PID_" + profilingParams.PID.ToString() + profilerTraceFileName;
 
-                                    client.DownloadFile(url, profilerTraceFilePath + profilerTraceFileName);
+                                    client.DownloadFile(url, FileSystemHelper.DirectoryPathFor(FileSystemHelper.ProxyAction.ProfilerTrace) + @"\" + profilerTraceFileName);
 
                                     //(profilerTraceFilePath) will most likely be the following
                                     //D:\home\site\siteextensions\InstanceDetective\ProfilerTrace
                                     //return path should be /site/siteextensions/InstanceDetective/ProfilerTrace/ DO NOT FORGET THE '/' AT THE END OF THE PATH
 
-                                    return Request.CreateResponse(HttpStatusCode.OK, (profilerTraceFilePath + profilerTraceFileName).Replace(@"D:\home\", "").Replace(@"\", "/"));
+                                    return Request.CreateResponse(HttpStatusCode.OK, (FileSystemHelper.DirectoryPathFor(FileSystemHelper.ProxyAction.ProfilerTrace) + @"\" + profilerTraceFileName).Replace(@"D:\home\", "").Replace(@"\", "/"));
 
                                     //HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
                                     //response.Content = new ByteArrayContent(client.DownloadData(url));
