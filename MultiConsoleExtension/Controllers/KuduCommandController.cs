@@ -25,7 +25,7 @@ namespace MultiConsoleExtension.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
-
+            //string authSettingFromWhere = "";
             string command = input.Value<string>("command");
             string workingDirectory = input.Value<string>("dir");
             string ARRAffinity = input.Value<string>("ARRAffinity");
@@ -34,25 +34,29 @@ namespace MultiConsoleExtension.Controllers
             
             if (string.IsNullOrEmpty(siteSetting.AuthHeader))
             {
-                if (!string.IsNullOrEmpty(Request.Headers.GetValues("Authorization").FirstOrDefault()))
+
+                FileSystemHelper.EnsureFolderStructure();
+                if (File.Exists(FileSystemHelper.UserSettingsFileFullPath))
                 {
-                    AuthHeader = Request.Headers.GetValues("Authorization").FirstOrDefault();
-                    siteSetting.AuthHeader = AuthHeader;
+                    string strSettings = File.ReadAllText(FileSystemHelper.UserSettingsFileFullPath);
+                    siteSetting = JsonConvert.DeserializeObject<SiteSettings>(strSettings);                    
+                    AuthHeader = siteSetting.AuthHeader;
+                    //authSettingFromWhere = "Auth Header from FileSystem: " + AuthHeader;
                 }
                 else
                 {
-                    FileSystemHelper.EnsureFolderStructure();
-                    if (File.Exists(FileSystemHelper.UserSettingsFileFullPath))
+                    IEnumerable<string> headerValues;
+                    if(Request.Headers.TryGetValues("Authorization",out headerValues))
                     {
-                        string strSettings = File.ReadAllText(FileSystemHelper.UserSettingsFileFullPath);
-                        siteSetting = JsonConvert.DeserializeObject<SiteSettings>(strSettings);
-                        AuthHeader = siteSetting.AuthHeader;
+                        AuthHeader = headerValues.FirstOrDefault();
+                        //authSettingFromWhere = "Auth Header from request header Authorization: " + AuthHeader;
                     }                    
                 }
             }
             else
-            {
+            {                
                 AuthHeader = siteSetting.AuthHeader;
+                //authSettingFromWhere = "Auth Header from Static variable siteSetting: " + AuthHeader;
             }
             if(string.IsNullOrEmpty(AuthHeader))
             {
@@ -64,12 +68,14 @@ namespace MultiConsoleExtension.Controllers
 
             string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/command");
 
+
             //Uncomment this section only when testing locally. Make sure to comment this during build else this will break when site is not browsed via Azurewebsites URL (especially in case of ILB ASE)
             #region Redirect to local proxy and not Kudu
-            if (url.IndexOf(".azurewebsites.net") < 1)
-            {
-                url = "https://nmallickSiteExt.scm.azurewebsites.net/command";
-            }
+            //if (url.IndexOf(".azurewebsites.net") < 1)
+            //{
+            //    url = "https://nmallickSiteExt.scm.azurewebsites.net/command";
+            //}
+            
             #endregion
 
             string jsonBody = input.ToString();
@@ -78,9 +84,14 @@ namespace MultiConsoleExtension.Controllers
 
             using (var client = new WebClient())
             {
+                //string reqContent = "";
                 client.Headers[HttpRequestHeader.ContentType] = "application/json";
                 client.Headers[HttpRequestHeader.Authorization] = AuthHeader;
                 client.Headers[HttpRequestHeader.Cookie] = "ARRAffinity=" + ARRAffinity; //If invalid cookie value is passed then the request will be load balanced and sent to a random worker
+
+                //reqContent += "url:" + url + ", ContentType : application/json, Cookie: ARRAffinity=" + ARRAffinity + ", Authorization:" + AuthHeader + ", PostBody:" + jsonBody + ", "  + authSettingFromWhere;
+                //return Request.CreateResponse(HttpStatusCode.BadRequest, reqContent);
+
                 result = client.UploadString(url, "POST", jsonBody);
 
                 KuduResponse resp = JsonConvert.DeserializeObject<KuduResponse>(result);
