@@ -34,10 +34,10 @@ namespace MultiConsoleExtension.Controllers
                     {
                         #region Start Profiling
                         string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested);
-                        if (url.IndexOf(".scm.azurewebsites.net") < 1)
-                        {
-                            url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
-                        }
+                        //if (url.IndexOf(".scm.azurewebsites.net") < 1)
+                        //{
+                        //    url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
+                        //}
                         //HTTP POST REQUEST
                         using (var client = new WebClient())
                         {
@@ -69,10 +69,10 @@ namespace MultiConsoleExtension.Controllers
                             #region Stop Profiling
                             //HTTP GET REQUEST to stop the trace and download the trace file
                             string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested);
-                            if (url.IndexOf(".scm.azurewebsites.net") < 1)
-                            {
-                                url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
-                            }
+                            //if (url.IndexOf(".scm.azurewebsites.net") < 1)
+                            //{
+                            //    url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID + "/profile/" + profilingParams.ActionRequested;
+                            //}
 
                             using (var client = new WebClient())
                             {
@@ -124,10 +124,10 @@ namespace MultiConsoleExtension.Controllers
                                 #region Get Process Info
                                 //Populate a list of ProcessModel objects for this site and return the data
                                 string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/");
-                                if (url.IndexOf(".scm.azurewebsites.net") < 1)
-                                {
-                                    url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/";
-                                }
+                                //if (url.IndexOf(".scm.azurewebsites.net") < 1)
+                                //{
+                                //    url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/";
+                                //}
 
                                 using (WebClient client = new WebClient())
                                 {
@@ -143,7 +143,7 @@ namespace MultiConsoleExtension.Controllers
                                     }
                                     catch (Exception e)
                                     {
-                                        return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "An error occurred while getting the process list from Kudu : " + e.Message);
+                                        return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "An error occurred while getting the process list from Kudu : " + e.Message + " Auth Header: " + profilingParams.AuthHeader);
                                     }
                                     processList = JsonConvert.DeserializeObject<KuduProcess[]>(result);
                                     List<ProcessModel> response = new List<ProcessModel>();
@@ -189,10 +189,10 @@ namespace MultiConsoleExtension.Controllers
                                     #region Kill Process
                                     //HTTP GET REQUEST to stop the trace and download the trace file
                                     string url = Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.AbsolutePath, "/api/processes/" + profilingParams.PID);
-                                    if (url.IndexOf(".scm.azurewebsites.net") < 1)
-                                    {
-                                        url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID;
-                                    }
+                                    //if (url.IndexOf(".scm.azurewebsites.net") < 1)
+                                    //{
+                                    //    url = "https://nmallickSiteExt.scm.azurewebsites.net/api/processes/" + profilingParams.PID;
+                                    //}
 
                                     using (var client = new WebClient())
                                     {
