@@ -84,6 +84,7 @@ namespace MultiConsoleExtension.Controllers
 
             using (var client = new WebClient())
             {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
                 //string reqContent = "";
                 client.Headers[HttpRequestHeader.ContentType] = "application/json";
                 client.Headers[HttpRequestHeader.Authorization] = AuthHeader;
